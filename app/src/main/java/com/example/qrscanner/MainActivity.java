@@ -1,42 +1,41 @@
-package com.example.qrscanner;
+ package com.example.qrscanner;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.view.PreviewView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
+ import android.Manifest;
+ import android.annotation.SuppressLint;
+ import android.content.pm.PackageManager;
+ import android.graphics.Point;
+ import android.graphics.Rect;
+ import android.media.Image;
+ import android.os.Bundle;
+ import android.util.Size;
+ import android.widget.Toast;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.media.Image;
-import android.os.Build;
-import android.os.Bundle;
-import android.util.Size;
-import android.widget.Toast;
+ import androidx.annotation.NonNull;
+ import androidx.appcompat.app.AppCompatActivity;
+ import androidx.camera.core.CameraSelector;
+ import androidx.camera.core.ImageAnalysis;
+ import androidx.camera.core.ImageCapture;
+ import androidx.camera.core.ImageProxy;
+ import androidx.camera.core.Preview;
+ import androidx.camera.lifecycle.ProcessCameraProvider;
+ import androidx.camera.view.PreviewView;
+ import androidx.core.app.ActivityCompat;
+ import androidx.core.content.ContextCompat;
+ import androidx.fragment.app.FragmentManager;
 
-import com.google.android.gms.tasks.Task;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.mlkit.vision.barcode.BarcodeScanner;
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
-import com.google.mlkit.vision.barcode.BarcodeScanning;
-import com.google.mlkit.vision.barcode.common.Barcode;
-import com.google.mlkit.vision.common.InputImage;
+ import com.google.android.gms.tasks.Task;
+ import com.google.common.util.concurrent.ListenableFuture;
+ import com.google.mlkit.vision.barcode.BarcodeScanner;
+ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+ import com.google.mlkit.vision.barcode.BarcodeScanning;
+ import com.google.mlkit.vision.barcode.common.Barcode;
+ import com.google.mlkit.vision.common.InputImage;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+ import java.util.List;
+ import java.util.Objects;
+ import java.util.concurrent.ExecutionException;
+ import java.util.concurrent.ExecutorService;
+ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -145,7 +144,8 @@ public class MainActivity extends AppCompatActivity {
 
             BarcodeScanner scanner = BarcodeScanning.getClient(scannerOptions);
             Task<List<Barcode>> result = scanner.process(inputImage)
-                    .addOnSuccessListener(this::ReaderBarCodeData)
+                    .addOnSuccessListener(barcodes -> ReaderBarCodeData(barcodes))
+                   // .addOnSuccessListener(this::ReaderBarCodeData)
                     .addOnFailureListener(e -> {
                         // Failed  to read the QR code
                         Toast.makeText(MainActivity.this, "Failed to Scan", Toast.LENGTH_SHORT).show();
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (valueType){
                     case Barcode.TYPE_WIFI:
-                        String ssid = barcode.getWifi().getSsid();
+                        String ssid = Objects.requireNonNull(barcode.getWifi()).getSsid();
                         String password = barcode.getWifi().getPassword();
                         int type = barcode.getWifi().getEncryptionType();
                         break;
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                         if (bottomDialog.isAdded()){
                             bottomDialog.show(fragmentManager,"");
                         }
-                        bottomDialog.fetchUrl(barcode.getUrl().getUrl());
+                        bottomDialog.fetchUrl(Objects.requireNonNull(barcode.getUrl()).getUrl());
                         String title = barcode.getUrl().getTitle();
                         String url = barcode.getUrl().getUrl();
                         break;

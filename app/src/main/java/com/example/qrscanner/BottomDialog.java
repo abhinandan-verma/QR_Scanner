@@ -50,6 +50,11 @@ public class BottomDialog extends BottomSheetDialogFragment {
     public  void fetchUrl(String url){
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
-        executorService.execute(() -> fetchURL = url);
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                fetchURL = url;
+            }
+        });
     }
 }
